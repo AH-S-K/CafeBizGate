@@ -1,0 +1,114 @@
+
+@font-face{
+    font-family: yekan;
+    src : url("../fonts/iranyekanwebbold.ttf")
+}
+
+*{
+    font-family: yekan;
+    margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	list-style: none;
+	text-decoration: none;
+
+}
+body{
+	background-color: #7b5a2c;
+}
+
+.navbar{
+	background-color: #332819;
+
+}
+
+.sidebar{
+	position: fixed;
+	top: 55px;
+	right: 0;
+	width: 250px;
+	height: 100%;
+	background: #332819;
+}
+
+.sidebar ul li a{
+	display: block;
+	padding: 12px 25px;
+	border-bottom: 1px solid #c3ac00;
+	color: #c3ac00;
+    text-decoration: none;
+	transition: all 0.4s ease;
+}
+
+.sidebar ul li a .icon{
+	font-size: 18px;
+	vertical-align: middle;
+	transition: background 0.4s ease;
+}
+
+.sidebar ul li a .text{
+	margin-left: 10px;
+	color: #c3ac00;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+.sidebar ul li a:hover{
+	background: #4e3a2b;
+	color: #cb1010;
+}
+
+.click_collapse .sidebar{
+	transition: all 0.2s ease;
+}
+
+
+.sidebar ul li .hide{
+	display: none;
+}
+
+.hover_collapse .sidebar{
+	width: 70px;
+}
+
+
+.hover_collapse .sidebar ul li a .text{
+	display: none;
+}
+
+.navbar .hamburger{
+	cursor: pointer;
+	color: #c3ac00;
+}
+
+.navbar .hamburger:hover{
+	color: #96881e;
+}
+
+.nav-link{
+	color:#c3ac00;
+}
+
+.nav-link:hover{
+	color: #96881e;
+}
+
+.cafe{
+	margin-left: 10%;
+}
+
+
+@media(max-width:800px){
+	.sidebar ul li .hide{
+		display: block;
+	}
+
+	.blocking{
+		display: none;
+	}
+
+	.cafe{
+		margin-left: 45%;
+	}
+	
+}
