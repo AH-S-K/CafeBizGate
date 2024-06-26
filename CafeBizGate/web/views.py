@@ -66,3 +66,33 @@ def logout_view(request):
 
 def is_admin(user):
     return user.username == 'admin'
+
+def unauthorized_access(request):
+    return render(request, 'unauthorized_access.html')
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def user_list(request):
+    users = User.objects.all()
+    return render(request, 'user_list.html', {'users': users})
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def delete_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            print(username)
+            user.delete()
+            return redirect('user-list')
+        except User.DoesNotExist:
+            pass
+    return redirect('user-list')
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def delete_user2(request):
+    try:
+        user = User.objects.get(username='a2')
+        user.delete()
+        return redirect("login")
+    except Users.DoesNotExist:
+        return HttpResponse('User not found')
