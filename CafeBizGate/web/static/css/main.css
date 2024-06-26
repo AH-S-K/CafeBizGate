@@ -1,69 +1,280 @@
+/* @font-face{
+    font-family: yekan;
+    src : url("../fonts/iranyekanwebbold.ttf")
+}
 
-<div class="carousel slide carousel-fade" data-interval="2000" data-ride="carousel" id="mycarousel">
-                <ol class="carousel-indicators">
-                    <li data-target="#mycarousel" data-slide-to="0" class="active"></li>
-                    <li data-target="#mycarousel" data-slide-to="1"></li>
-                    <li data-target="#mycarousel" data-slide-to="2"></li>
-                    <li data-target="#mycarousel" data-slide-to="3"></li>
-                    <li data-target="#mycarousel" data-slide-to="4"></li>
-                </ol>
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img class="imgb d-block w-100" src="../static/pic/1.jpg" alt="" >
-                    </div>
-                    <div class="carousel-item">
-                        <img class="imgb d-block w-100" src="../static/pic/2.jpg" alt="">
-                    </div>
-                    <div class="carousel-item">
-                        <img class="imgb d-block w-100" src="../static/pic/3.jpg" alt="">
-                    </div>
-                    <div class="carousel-item">
-                        <img class="imgb d-block w-100" src="../static/pic/4.jpg" alt="">
-                    </div>
-                    <div class="carousel-item">
-                        <img class="imgb d-block w-100" src="../static/pic/5.jpg" alt="">
-                    </div>
-                </div>
-                <a href="#mycarousel" role="button" data-slide="prev" class="carousel-control-prev">
-                    <span class="carousel-control-prev-icon"></span></a>
-                
-                <a href="#mycarousel" role="button" data-slide="next" class="carousel-control-next">
-                    <span class="carousel-control-next-icon"></span></a>
-                
-            </div>
-      
-            <footer class="footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h5>درباره ما</h5>
-                            <p>ما یک تیم از توسعه دهندگان وب هستیم که بر ایجاد پروژه‌های حرفه‌ای و کاربرپسند تمرکز داریم.</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>لینک‌ها</h5>
-                            <ul class="list-unstyled">
-                                <li><a href="{% url 'index' %}"><i class="fas fa-home"></i> صفحه اصلی</a></li>
-                                <li><a href="{% url 'products' %}"><i class="fas">&#xf291;</i> محصولات</a></li>
-                                <li><a href="#"><i class="fas">&#xf15c;</i> سوابق خرید</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>اطلاعات تماس</h5>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-envelope"></i> ایمیل: CafeBizGate@gmail.com</li>
-                                <li><i class="fas fa-phone"></i> تلفن: 09123456789</li>
-                                <li><i class="fas fa-map-marker-alt"></i> آدرس: تهران، خیابان آزادی، دانشگاه شریف، دانشکده صنایع، vending machine طبقه همکف</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="text-center mt-4">
-                        <p>&copy; 2024 تمامی حقوق محفوظ است.</p>
-                        <div>
-                            <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
-                            <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
-                            <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
-                            <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+*{
+    font-family: yekan;
+    margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	list-style: none;
+	text-decoration: none;
+}
+
+.sidebar{
+	position: fixed;
+	top: 55px;
+	right: 0;
+	width: 250px;
+	height: 100%;
+	background: #281414;
+}
+
+.sidebar ul li a{
+	display: block;
+	padding: 12px 25px;
+	border-bottom: 1px solid #c3ac00;
+	color: #c3ac00;
+    text-decoration: none;
+	transition: all 0.4s ease;
+}
+
+.sidebar ul li a .icon{
+	font-size: 18px;
+	vertical-align: middle;
+	transition: background 0.4s ease;
+}
+
+.sidebar ul li a .text{
+	margin-left: 10px;
+	color: #c3ac00;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+.sidebar ul li a:hover{
+	background: #4e3a2b;
+	color: #cb1010;
+}
+
+.click_collapse .sidebar{
+	transition: all 0.2s ease;
+}
+.sidebar ul li .hide{
+	display: none;
+}
+.hover_collapse .sidebar{
+	width: 70px;
+}
+.hover_collapse .sidebar ul li a .text{
+	display: none;
+}
+.navbar .hamburger{
+	cursor: pointer;
+	color: #c3ac00;
+}
+
+.navbar .hamburger:hover{
+	color: #96881e;
+} */
+
+@font-face{
+    font-family: yekan;
+    src : url("../fonts/iranyekanwebbold.ttf")
+}
+
+*{
+    font-family: yekan;
+    margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	list-style: none;
+	text-decoration: none;
+
+}
+body{
+	background-color: #7b5a2c;
+}
+
+.navbar{
+	background-color: #332819;
+
+}
+
+.sidebar{
+	position: fixed;
+	top: 55px;
+	right: 0;
+	width: 250px;
+	height: 100%;
+	background: #332819;
+}
+
+.sidebar ul li a{
+	display: block;
+	padding: 12px 25px;
+	border-bottom: 1px solid #c3ac00;
+	color: #c3ac00;
+    text-decoration: none;
+	transition: all 0.4s ease;
+}
+
+.sidebar ul li a .icon{
+	font-size: 18px;
+	vertical-align: middle;
+	transition: background 0.4s ease;
+}
+
+.sidebar ul li a .text{
+	margin-left: 10px;
+	color: #c3ac00;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+.sidebar ul li a:hover{
+	background: #4e3a2b;
+	color: #cb1010;
+}
+
+.click_collapse .sidebar{
+	transition: all 0.2s ease;
+}
+
+.click_collapse .footer{
+	transition: all 0.2s ease;
+}
+
+.click_collapse .carousel{
+	transition: all 0.2s ease;
+}
+
+.sidebar ul li .hide{
+	display: none;
+}
+
+.hover_collapse .sidebar{
+	width: 70px;
+}
+
+.hover_collapse .footer{
+	margin-right:70px;
+}
+
+.hover_collapse .carousel{
+	margin-right:70px;
+}
+
+.hover_collapse .sidebar ul li a .text{
+	display: none;
+}
+
+.navbar .hamburger{
+	cursor: pointer;
+	color: #c3ac00;
+}
+
+.navbar .hamburger:hover{
+	color: #96881e;
+}
+
+.nav-link{
+	color:#c3ac00;
+}
+
+.nav-link:hover{
+	color: #96881e;
+}
+
+.cafe{
+	margin-left: 10%;
+}
+
+.footer {
+	margin-right: 250px;
+    background-color: #333;
+    color: #fff;
+    padding: 40px 0;
+}
+
+.footer h5 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.footer p,.footer ul,.footer li {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.footer .container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.footer .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.footer ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.footer ul li {
+    margin-bottom: 10px;
+}
+
+.footer ul li i {
+    margin-right: 8px;
+}
+
+.footer .text-center {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.footer .text-center a {
+    color: #fff;
+    margin: 0 10px;
+    transition: color 0.2s;
+}
+
+.footer .text-center a:hover {
+    color: #aaa;
+}
+
+.carousel-item{
+width: calc(100%-250px);
+padding: 10px;
+
+}
+
+.carousel{
+	top: 75px;
+	margin-right: 250px;
+	margin-left: 1%;
+	margin-bottom: 150px;
+}
+
+.imgb{
+	border-radius: 10%;
+}
+
+@media(max-width:800px){
+	.sidebar ul li .hide{
+		display: block;
+	}
+
+	.blocking{
+		display: none;
+	}
+
+	.cafe{
+		margin-left: 45%;
+	}
+	
+}
