@@ -78,4 +78,57 @@ class LoginForm(forms.Form):
             raise forms.ValidationError('Both fields are required.')
 
         return cleaned_data
+
+class AddStorageForm(forms.ModelForm):
+    class Meta:
+        model = Storage
+        fields = ['name', 'amount']
+        labels = {
+            'name' : _('نام ماده اولیه'),
+            'amount' : _('مقدار اولیه'),
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+class UpdateStorageForm(forms.ModelForm):
+    class Meta:
+        model = Storage
+        fields = ['amount']
+        widgets = {
+            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+        
+        
+        
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'price', 'image', 'category']
+        labels = {
+            'name': _('نام محصول'),
+            'price': _('قیمت'),
+            'image': _('تصویر'),
+            'category': _('دسته‌بندی'),
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
+class IngredientForm(forms.ModelForm):
+    class Meta:
+        model = Ingredient
+        fields = ['storage']
+        labels = {
+            'storage': _('نام مواد اولیه'),
+        }
+        widgets = {
+            'storage': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+# ایجاد فرم‌ست برای مواد اولیه
+IngredientFormSet = inlineformset_factory(Product, Ingredient, form=IngredientForm , extra=5)
     
