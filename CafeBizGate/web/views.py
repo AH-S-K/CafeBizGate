@@ -96,3 +96,82 @@ def delete_user2(request):
         return redirect("login")
     except Users.DoesNotExist:
         return HttpResponse('User not found')
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def management_view(request):
+        return render(request, 'management.html')
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def manage_inventory(request):
+    add_form = AddStorageForm()
+    update_form = UpdateStorageForm()
+    
+    if request.method == 'POST':
+        if 'add_storage' in request.POST:
+            add_form = AddStorageForm(request.POST)
+            if add_form.is_valid():
+                add_form.save()
+                return redirect('manage_inventory')
+        elif 'update_storage' in request.POST:
+            storage_id = request.POST.get('storage_id')
+            storage = get_object_or_404(Storage, id=storage_id)
+            update_form = UpdateStorageForm(request.POST, instance=storage)
+            if update_form.is_valid():
+                update_form.save()
+                return redirect('manage_inventory')
+        elif 'delete_storage' in request.POST:
+            storage_id = request.POST.get('storage_id')
+            storage = get_object_or_404(Storage, id=storage_id)
+            storage.delete()
+            return redirect('manage_inventory')
+
+    storages = Storage.objects.all()
+
+    return render(request, 'manage_inventory.html', {
+        'add_form': add_form,
+        'update_form': update_form,
+        'storages': storages,
+    })
+
+@user_passes_test(is_admin, login_url='/unauthorized/')
+def add_product(request):
+    product = None
+    if 'edit' in request.GET:
+        product = get_object_or_404(Product, id=request.GET.get('edit'))
+
+    if request.method == 'POST':
+        # Check if delete button was clicked
+        if 'delete' in request.POST:
+            product_id = request.POST.get('delete')
+            product_to_delete = get_object_or_404(Product, id=product_id)
+            product_to_delete.delete()
+            return redirect('add_product')
+
+        # Handle adding/editing product
+        if product:
+            product_form = ProductForm(request.POST, request.FILES, instance=product)
+            ingredient_formset = IngredientFormSet(request.POST, instance=product)
+        else:
+            product_form = ProductForm(request.POST, request.FILES)
+            ingredient_formset = IngredientFormSet(request.POST)
+
+        if product_form.is_valid() and ingredient_formset.is_valid():
+            saved_product = product_form.save()
+            ingredient_formset.instance = saved_product
+            ingredient_formset.save()
+            return redirect('add_product')
+    else:
+        if product:
+            product_form = ProductForm(instance=product)
+            ingredient_formset = IngredientFormSet(instance=product)
+        else:
+            product_form = ProductForm()
+            ingredient_formset = IngredientFormSet()
+
+    products = Product.objects.all()
+    return render(request, 'add_product.html', {
+        'product_form': product_form,
+        'ingredient_formset': ingredient_formset,
+        'products': products,
+        'product': product,
+    })
