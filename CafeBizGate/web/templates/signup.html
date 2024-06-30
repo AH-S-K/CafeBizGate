@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Jost', sans-serif;
+            outline: none;
+            color: #5c4b51;
+        }
+
+        body {
+            background-image: url('../static/pic/restaurant-bar-coffee-shop.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .wrapper {
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form {
+            border: 2px solid black;
+            border-radius: 20px;
+            direction: rtl;
+            width: 425px;
+            height: auto;
+            background: #c4b03d;
+            padding: 35px 50px;
+        }
+
+        .form .title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .form .form-group {
+            margin-bottom: 20px;
+            width: 325px;
+            position: relative;
+        }
+
+        .form .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form .form-group input {
+            border: 2px solid black;
+            border-radius: 20px;
+            padding: 15px;
+            width: 100%;
+            border: 1px solid transparent;
+            font-size: 16px;
+        }
+
+        .form .form-group .input {
+            background: #f5f4f4;
+            padding-right: 35px;
+        }
+
+        .form .form-group .input:focus {
+            border-color: #7d6412;
+        }
+
+        .form .form-group .input_field {
+            position: relative;
+        }
+
+        .form .form-group .btn {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #fff;
+        }
+
+        .form .form-group .btn {
+            background: #1dbf73;
+            cursor: pointer;
+        }
+
+        .form .form-group .login a {
+            font-size: 15px;
+            margin-bottom: 5px;
+            color: #4f131c;
+            text-decoration: none;
+        }
+
+        .form .form-group .login a:hover {
+            color: #f74040;
+        }
+
+        .form .form-group .error_msg {
+            font-size: 15px;
+            margin-bottom: 5px;
+            color: #f74040;
+            display: none;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .errorlist li {
+            margin-bottom: 5px;
+            color: #f74040;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="wrapper">
+        <div class="form">
+            <div class="title">
+                ایجاد حساب کاربری
+            </div>
+            <form method="post" onsubmit="return validation()">
+                {% csrf_token %}
+                <ul class="errorlist">
+                    {{ form.non_field_errors }}
+                </ul>
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="input_field">
+                        <input type="text" class="input" id="{{ field.id_for_label }}" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}">
+                    </div>
+                    <ul class="errorlist">{{ field.errors }}</ul>
+                </div>
+                {% endfor %}
+                <div class="form-group">
+                    <span class="login"><a href="{% url 'login' %}">ورود</a></span>
+                </div>
+                <div class="form-group" style="top: 20px;">
+                    <input type="submit" id="login_btn" class="btn" value="ثبت نام">
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
