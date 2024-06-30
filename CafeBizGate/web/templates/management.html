@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <title>صفحه مدیریت فروشگاه</title>
+    <style>
+        body {
+            background-color: #7b5a2c;
+            padding-right: 25%;
+            text-align: right;
+            direction: rtl;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 20%;
+            height: 100%;
+            background: #332819;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar h2 a {
+            color: #c3ac00;
+            text-decoration: none;
+        }
+
+        .sidebar h2 a:hover{
+	        color: #cb1010;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul li a {
+            color: #c3ac00;
+            text-decoration: none;
+        }
+
+        .sidebar ul li a:hover{
+	        color: #cb1010;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-right: 0;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+            }
+            .container {
+                max-width: 100%;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2><a href="{% url 'management' %}">مدیریت فروشگاه</a></h2>
+            <ul>
+                <li><a href="{% url 'manage_inventory' %}">مدیریت انبار</a></li>
+                <li><a href="{% url 'add_product' %}">اضافه کردن محصول</a></li>
+                <li class="leave">
+                    <a href="{% url 'logout' %}">
+                         <span class="icon"><i class="fas">&#xf011;</i></span>
+                        <span class="text">خروج
+                         </span></a>
+                    </a>
+                  </li>
+            </ul>
+        </div>
+    </div>    
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
