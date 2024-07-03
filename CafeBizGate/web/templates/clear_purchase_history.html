@@ -1,9 +1,9 @@
 {%load static%}
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+    <title>Clear Purchase History</title>
     <meta charset="UTF-8">
-    <title>User List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/bootstrap.fa.min.css'%}">
@@ -34,19 +34,19 @@
     </style>
 </head>
 <body>
-    <h1>User List</h1>
-    <ul>
-        {% for user in users %}
-            <li>
-                {{ user.username }} - {{ user.password }}
-                <form method="POST" action="{% url 'delete-user' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="username" value="{{ user.username }}">
-                    <button type="submit" class="btn-color">Delete</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <h1>Clear Purchase History</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>Are you sure you want to clear all purchase history?</p>
+        <button type="submit" class="btn-color">Yes, clear all</button>
+    </form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <a href="{% url 'management' %}" class="nav-link" style="margin-top: 30px;"><i class="fas">&#xf011;</i> بازگشت</a>
 </body>
 </html>
