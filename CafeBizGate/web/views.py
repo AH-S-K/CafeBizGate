@@ -238,6 +238,25 @@ def product_list(request):
     ]
     return JsonResponse(data, safe=False)
 
+def product_list2(request):
+    category = request.GET.get('category')
+    if category:
+        products = Product.objects.filter(category=category)
+    else:
+        products = Product.objects.all()
+        
+    data = [
+        {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'category':product.category,
+            'image': product.image.url,
+        }
+        for product in products
+    ]
+    return JsonResponse(data, safe=False)
+
 
 def display_products(request, category=None):
     context = {'category': category}

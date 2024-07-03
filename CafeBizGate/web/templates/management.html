@@ -131,7 +131,7 @@
 
         async function loadProducts() {
             try {
-                let response = await fetch('/api/products/');
+                let response = await fetch('/api/products2/');
                 let products = await response.json();
                 let productSelect = document.getElementById('productSelect');
                 products.forEach(product => {
