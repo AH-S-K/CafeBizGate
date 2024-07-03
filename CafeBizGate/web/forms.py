@@ -78,7 +78,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError('Both fields are required.')
 
         return cleaned_data
-
+    
 class AddStorageForm(forms.ModelForm):
     class Meta:
         model = Storage
@@ -121,14 +121,20 @@ class ProductForm(forms.ModelForm):
 class IngredientForm(forms.ModelForm):
     class Meta:
         model = Ingredient
-        fields = ['storage']
+        fields = ['storage' , 'quantity']
         labels = {
-            'storage': _('نام مواد اولیه'),
+            'storage': _('نام ماده اولیه'),
+            'quantity': _('مقدار'),
         }
         widgets = {
             'storage': forms.Select(attrs={'class': 'form-control'}),
         }
 
 # ایجاد فرم‌ست برای مواد اولیه
-IngredientFormSet = inlineformset_factory(Product, Ingredient, form=IngredientForm , extra=5)
-    
+IngredientFormSet = inlineformset_factory(Product, Ingredient, form=IngredientForm, extra=3, can_delete=True)
+
+
+class ChartForm(forms.Form):
+    product = forms.ModelChoiceField(queryset=Product.objects.all())
+    start_date = forms.DateField(widget=forms.SelectDateWidget)
+    end_date = forms.DateField(widget=forms.SelectDateWidget)
