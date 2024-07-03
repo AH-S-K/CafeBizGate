@@ -20,8 +20,8 @@ from django.db.models.functions import TruncDay , TruncMonth , TruncWeek
 
 def index(request):
     best_selling_products = Product.objects.annotate(
-    total_sales=Sum('orders_product__quantity')
-    ).order_by('-total_sales')[:12]
+        total_sales=Sum('orders_product__quantity')
+    ).exclude(name='Test Product').order_by('-total_sales')[:12]
 
     context = {
         'best_selling_products': best_selling_products,
@@ -222,9 +222,9 @@ def sales_data(request):
 def product_list(request):
     category = request.GET.get('category')
     if category:
-        products = Product.objects.filter(category=category)
+        products = Product.objects.filter(category=category).exclude(name='Test Product')
     else:
-        products = Product.objects.all()
+        products = Product.objects.all().exclude(name='Test Product')
         
     data = [
         {
