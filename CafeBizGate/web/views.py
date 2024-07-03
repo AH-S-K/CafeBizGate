@@ -20,7 +20,7 @@ from django.db.models.functions import TruncDay , TruncMonth , TruncWeek
 
 def index(request):
     best_selling_products = Product.objects.annotate(
-        total_sales=Sum('orders_product__quantity')
+        total_sales=Sum('orders_product__quantity' , filter=models.Q(orders_product__orders_order_id__type=True))
     ).exclude(name='Test Product').order_by('-total_sales')[:12]
 
     context = {
@@ -327,7 +327,14 @@ def cart(request):
                 if ingredient.storage.id not in required_ingredients:
                     required_ingredients[ingredient.storage.id] = 0
                 required_ingredients[ingredient.storage.id] += (new_quantity - order_product.quantity) * ingredient.quantity
-
+                
+            # محاسبه مقدار مورد نیاز برای محصولات فعلی در سبد خرید
+            for order_item in user_order.orders_product_set.all():
+                for ingredient in order_item.product_id.ingredients.all():
+                    if ingredient.storage.id not in required_ingredients:
+                        required_ingredients[ingredient.storage.id] = 0
+                    required_ingredients[ingredient.storage.id] += order_item.quantity * ingredient.quantity
+            
             insufficient_ingredients = []
             for storage_id, required_amount in required_ingredients.items():
                 storage = Storage.objects.get(id=storage_id)
@@ -430,6 +437,7 @@ def order_history(request):
         orders_info.append({
             'order_id': order.order_id,
             'purchase_amount': order.purchase_amount,
+            'purchase_type': order.purchase_type,
             'products_info': products_info,
         })
     context = {

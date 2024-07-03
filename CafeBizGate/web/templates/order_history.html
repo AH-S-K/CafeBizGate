@@ -252,6 +252,11 @@
                 <div class="order">
                     <p>شماره سفارش: {{ order.order_id }}</p>
                     <p>مبلغ خرید: {{ order.purchase_amount }}</p>
+                    {% if order.purchase_type == "IS" %}
+                        <p>تحویل: حضوری</p>
+                    {% elif order.purchase_type == "TA" %}
+                        <p>تحویل: بیرون بر</p>
+                    {% endif %}
                     <table>
                         <thead>
                             <tr>
