@@ -97,7 +97,6 @@ def delete_user(request):
         username = request.POST.get('username')
         try:
             user = User.objects.get(username=username)
-            print(username)
             user.delete()
             return redirect('user-list')
         except User.DoesNotExist:
@@ -251,7 +250,7 @@ def add_to_cart(request, product_id):
         product = get_object_or_404(Product, id=product_id)
         
         # اضافه کردن محصول به سبد خرید
-        user_order, created = Orders.objects.get_or_create(username=request.user.custom_user, type=False , defaults={'order_date': timezone.now()})
+        user_order, created = Orders.objects.get_or_create(username=request.user.custom_user, type=False , defaults={'order_date': timezone.now() , 'purchase_type': 'TA'})
         
         # محاسبه مقدار مورد نیاز هر ماده اولیه برای محصول جدید
         required_ingredients = {}
@@ -327,6 +326,7 @@ def cart(request):
 
         elif 'place_order' in request.POST:
             order_type = request.POST.get('order_type') == 'on'
+            purchase_type = request.POST.get('purchase_type')  # دریافت نوع خرید
 
             if not user_order:
                 return JsonResponse({'error': 'سبد خرید فعال یافت نشد.'}, status=400)
@@ -357,10 +357,14 @@ def cart(request):
             user_order.purchase_amount = total_amount
             user_order.type = True
             user_order.order_date = timezone.now()
+            user_order.purchase_type = purchase_type  # ذخیره نوع خرید
             user_order.save()
 
-            return JsonResponse({'success': 'سفارش با موفقیت ثبت شد!', 'redirect_url': reverse('order_summary', args=[user_order.order_id])})
-
+            return JsonResponse({'success': 'سفارش شما با موفقیت ثبت شد!'}, status=200)
+        # Handle case where neither update_quantity nor place_order is in POST
+        return JsonResponse({'error': 'درخواست نامعتبر.'}, status=400)
+    
+    # GET request handling 
     context = {
         'cart_items': user_order.orders_product_set.all() if user_order else [],
     }
@@ -377,7 +381,6 @@ def remove_from_cart(request, product_id):
         user_order.purchase_amount -= order_product.product_id.price * order_product.quantity
 
         order_product.delete()
-        # JsonResponse({'success': "محصول با موفقیت حذف شد!"})
         # اگر هیچ محصولی در سبد خرید باقی نماند، سفارش را نیز حذف کن
         if user_order.orders_product_set.count() == 0:
             user_order.delete()
@@ -386,16 +389,6 @@ def remove_from_cart(request, product_id):
 
         return redirect('cart')
     return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
-@login_required(login_url='login')
-def order_summary(request, order_id):
-    order = Orders.objects.get(order_id=order_id)
-    context = {
-        'order': order,
-        'order_items': order.orders_product_set.all(),
-    }
-    return render(request, 'order_summary.html', context)
 
 
 @login_required(login_url='login')
@@ -449,3 +442,32 @@ def clear_purchase_history(request):
         messages.success(request, 'Purchase history has been cleared.')
         return redirect('clear_purchase_history')
     return render(request, 'clear_purchase_history.html')
+
+
+# import random
+# from django.utils import timezone
+# from datetime import timedelta
+# from django.contrib.auth.models import User
+# from web.models import Users, Product, Orders, Orders_Product  # به جای `web` نام اپلیکیشن خود را وارد کنید
+# # بررسی وجود کاربر تستی و ایجاد در صورت عدم وجود
+# user, created = User.objects.get_or_create(
+#     username='testuser',
+#     defaults={'password': 'testpassword'}
+# )
+# custom_user, created = Users.objects.get_or_create(
+#     user=user,
+#     defaults={'full_name': 'Test User', 'phone_number': '09111111111'}
+# )
+# # بررسی وجود محصول تستی و ایجاد در صورت عدم وجود
+# product, created = Product.objects.get_or_create(
+#     name='Test Product',
+#     defaults={'price': 1000, 'category': Product.CAKE, 'image': 'images/test_product.jpg'}
+# )
+# # افزودن سفارشات تستی برای بازه‌های زمانی مختلف
+# for i in range(1, 31):  # 30 روز
+#     order_date = timezone.now() - timedelta(days=i)
+#     # تعداد تصادفی خریدها بین 0 و 5
+#     num_orders = random.randint(0, 5)
+#     for _ in range(num_orders):
+#         order = Orders.objects.create(username=custom_user, purchase_amount=1000, type=True, order_date=order_date)
+#         Orders_Product.objects.create(orders_order_id=order, product_id=product, quantity=random.randint(1, 10))
