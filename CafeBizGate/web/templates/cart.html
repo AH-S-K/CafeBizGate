@@ -94,7 +94,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .toast {
+        .message {
             position: fixed;
             bottom: 20px;
             left: 20px;
@@ -106,8 +106,16 @@
             transition: opacity 0.5s ease;
         }
 
-        .toast.show {
-            opacity: 1;
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         @media (max-width: 1200px) {
@@ -184,65 +192,65 @@
                 {% endif %}
             </div>    
         </nav>
-        <div class="sidebar">
-            <div class="sidebar_inner">
-            <ul>
-                <li>
-                    <a href='{% url "products_with_category" "HD" %}'>
-                        <span class="icon"><i class="fas"> &#xf7b6;</i></span>
-                        <span class="text">نوشیدنی گرم</span>
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "products_with_category" "CD" %}'>
-                        <span class="icon"><i class="fas"> &#xf5ce; </i></span>
-                        <span class="text">نوشیدنی سرد</span>
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "products_with_category" "TI" %}'>
-                        <span class="icon"><i class="fas"> &#xf0fc;</i></span>
-                        <span class="text">چای و دمنوش</span>
-                    </a>
-                </li>
-                <li>
-                    <a href='{% url "products_with_category" "CK" %}'>
-                        <span class="icon"><i class="fas"> &#xf7ef;</i></span>
-                        <span class="text">کیک ها</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'cart' %}" class="hide">
-                        <span class="icon"><i class="fas">	&#xf07a;</i></span>
-                        <span class="text">سبد خرید</span></a>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'order_history' %}" class="hide">
-                        <span class="icon"><i class="fas"> &#xf15c;</i></span>
-                        <span class="text">سوابق خرید</span></a>
-                    </a>
-                </li>	
-                {% if user.is_authenticated %}    
-                    <li class="leave">
-                      <a href="{% url 'logout' %}" class="hide">
-                           <span class="icon"><i class="fas">&#xf011;</i></span>
-                          <span class="text">خروج
-                           </span></a>
-                      </a>
-                    </li>
-                {% else %}    
+            <div class="sidebar">
+                <div class="sidebar_inner">
+                <ul>
                     <li>
-                        <a href="{% url 'login' %}" class="hide">
-                            <span class="icon"><i class="fas">&#xf2f6;</i></span>
-                            <span class="text">ورود به حساب کاربری
-                            </span>
+                        <a href="{% url 'products' 'HD' %}">
+                            <span class="icon"><i class="fas"> &#xf7b6;</i></span>
+                            <span class="text">نوشیدنی گرم</span>
                         </a>
                     </li>
-                {% endif %}
-            </ul>
+                    <li>
+                        <a href="{% url 'products' 'CD' %}">
+                            <span class="icon"><i class="fas"> &#xf5ce; </i></span>
+                            <span class="text">نوشیدنی سرد</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'products' 'TI' %}">
+                            <span class="icon"><i class="fas"> &#xf0fc;</i></span>
+                            <span class="text">چای و دمنوش</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'products' 'CK' %}">
+                            <span class="icon"><i class="fas"> &#xf7ef;</i></span>
+                            <span class="text">کیک ها</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'cart' %}" class="hide">
+                            <span class="icon"><i class="fas">	&#xf07a;</i></span>
+                            <span class="text">سبد خرید</span></a>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'order_history' %}" class="hide">
+                            <span class="icon"><i class="fas"> &#xf15c;</i></span>
+                            <span class="text">سوابق خرید</span></a>
+                        </a>
+                    </li>	
+                    {% if user.is_authenticated %}    
+                        <li class="leave">
+                          <a href="{% url 'logout' %}" class="hide">
+                               <span class="icon"><iaaj class="fas">&#xf011;</i></span>
+                              <span class="text">خروج
+                               </span></a>
+                          </a>
+                        </li>
+                    {% else %}    
+                        <li>
+                            <a href="{% url 'login' %}" class="hide">
+                                <span class="icon"><i class="fas">&#xf2f6;</i></span>
+                                <span class="text">ورود به حساب کاربری
+                                </span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                </div>
             </div>
-        </div>
             <div class="sabad-container">
                 <div class="sabad">
                     <h2>سبد خرید شما</h2>
@@ -257,7 +265,7 @@
                                 {% csrf_token %}
                                 <button type="submit">حذف</button>
                             </form>
-                            <form method="POST" class="update-cart-form" action="{% url 'cart' %}" style="display: inline;">
+                            <form method="POST" class="update-cart-form" action="{% url 'cart' %}" data-url="{% url 'cart' %}" style="display: inline;">
                                 {% csrf_token %}
                                 <input type="hidden" name="product_id" value="{{ item.product_id.id }}">
                                 <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
@@ -267,8 +275,19 @@
                     </li>
                     {% endfor %}
                     </ul>
-                    <form method="POST" action="{% url 'cart' %}">
+                    
+                    <form method="POST" action="{% url 'cart' %}" id="place-order-form" >
                         {% csrf_token %}
+                        <div>
+                            <label>
+                                <input type="radio" name="purchase_type" value="TA" checked>
+                                بیرون بر
+                            </label>
+                            <label>
+                                <input type="radio" name="purchase_type" value="IS">
+                                حضوری
+                            </label>
+                        </div>
                         <button type="submit" name="place_order">ثبت سفارش</button>
                     </form>
                     {% else %}
@@ -316,7 +335,7 @@
             </footer>
     </div>
 
-     <script>
+    <script>
 
         function showMessage(message, type) {
             const messageDiv = document.createElement('div');
