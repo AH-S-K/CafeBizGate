@@ -183,7 +183,8 @@ def add_product(request):
         'products': products,
         'product': product,
     })
-
+    
+@user_passes_test(is_admin, login_url='/unauthorized/')
 def sales_data(request):
     product_id = request.GET.get('product_id')
     period = request.GET.get('period')  # 'daily', 'weekly', 'monthly'
@@ -460,7 +461,7 @@ def clear_cart(request):
     # ریدایرکت به صفحه‌ای دیگر، به عنوان مثال به صفحه‌ی اصلی یا همان صفحه‌ی سبد خرید
     return redirect('cart')
 
-
+@user_passes_test(is_admin, login_url='/unauthorized/')
 def clear_purchase_history(request):
     if request.method == 'POST':
         Orders_Product.objects.all().delete()
