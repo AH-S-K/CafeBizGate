@@ -220,6 +220,30 @@ def sales_data(request):
     
     return JsonResponse(sales_data_list, safe=False)
 
+def product_list(request):
+    category = request.GET.get('category')
+    if category:
+        products = Product.objects.filter(category=category)
+    else:
+        products = Product.objects.all()
+        
+    data = [
+        {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'category':product.category,
+            'image': product.image.url,
+        }
+        for product in products
+    ]
+    return JsonResponse(data, safe=False)
+
+
+def display_products(request, category=None):
+    context = {'category': category}
+    return render(request, 'products.html', context)
+
 @login_required(login_url='login')
 @transaction.atomic
 def add_to_cart(request, product_id):
