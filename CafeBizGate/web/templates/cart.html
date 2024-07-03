@@ -1,0 +1,475 @@
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سبد خرید</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.fa.min.css'%}">
+    <link rel="stylesheet" href="{% static 'css/main.css'%}">
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sabad-container {
+            margin: 100px 280px 50px;
+            flex: 1;
+        }
+
+        .sabad h2 {
+            color: #c3ac00;
+            margin-bottom: 20px;
+        }
+
+        .sabad ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sabad li {
+            border: 4px solid #332819;
+            border-radius: 10px;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #5a4220;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            color: #c3ac00;
+            font-size: 20px;
+        }
+
+        .sabad li img {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            border: 3px solid #332819;
+            border-radius: 10px;
+        }
+
+
+
+        .sabad button {
+            color: #c3ac00;
+            background-color: #332819;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .sabad button:hover {
+            color: #cb1010;
+            background-color: #332819;
+        }
+
+        .sabad input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        .empty-cart {
+            border: 4px solid #332819;
+            border-radius: 10px;
+            background-color: #5a4220;
+            padding: 20px;
+            color: #c3ac00;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 1200px) {
+            .sabad {
+                margin: 100px 100px 50px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sabad {
+                margin: 100px 20px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sabad {
+                margin: 100px 10px 50px;
+            }
+
+            .sabad li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sabad li img {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sabad {
+                margin: 100px 10px 50px;
+            }
+
+            .sabad button {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .sabad input[type="number"] {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+        
+
+        
+    </style>
+</head>
+<body>
+    <div class="wrapper hover_collapse">
+        <nav class="navbar navbar-expand shadow fixed-top">
+            <div class="nav-item" style="margin-right: 15px;">
+                <a class="hamburger"><i class="fas fa-bars"></i></a>
+            </div>
+            <ul class="navbar-nav blocking" style="margin-right: 25px;">
+                </li>
+                <li class="nav-item mx-2">
+                    <a href="{% url 'order_history' %}" class="nav-link"><i class="fas">	&#xf15c;</i> سوابق خرید</a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a href="{% url 'cart' %}" class="nav-link"><i class="fas">	&#xf07a;</i> سبد خرید</a>
+                </li>      
+            </ul>
+            <div class="navbar-nav mr-auto cafe">
+                <a href="{% url 'index' %}" class="nav-link">CAFE RAMOZ</a>
+              </div>
+            <div class="navbar-nav nav-item mr-auto blocking">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="nav-link"><i class="fas">&#xf011;</i> خروج</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link"><i class="fas">&#xf2f6;</i> ورود به حساب کاربری</a>
+                {% endif %}
+            </div>    
+        </nav>
+            <div class="sidebar">
+                <div class="sidebar_inner">
+                <ul>
+                    <li>
+                        <a href="{% url "products_with_category" 'HD' %}">
+                            <span class="icon"><i class="fas"> &#xf7b6;</i></span>
+                            <span class="text">نوشیدنی گرم</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "products_with_category" 'CD' %}">
+                            <span class="icon"><i class="fas"> &#xf5ce; </i></span>
+                            <span class="text">نوشیدنی سرد</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "products_with_category" 'TI' %}">
+                            <span class="icon"><i class="fas"> &#xf0fc;</i></span>
+                            <span class="text">چای و دمنوش</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "products_with_category" 'CK' %}">
+                            <span class="icon"><i class="fas"> &#xf7ef;</i></span>
+                            <span class="text">کیک ها</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'cart' %}" class="hide">
+                            <span class="icon"><i class="fas">	&#xf07a;</i></span>
+                            <span class="text">سبد خرید</span></a>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'order_history' %}" class="hide">
+                            <span class="icon"><i class="fas"> &#xf15c;</i></span>
+                            <span class="text">سوابق خرید</span></a>
+                        </a>
+                    </li>	
+                    {% if user.is_authenticated %}    
+                        <li class="leave">
+                          <a href="{% url 'logout' %}" class="hide">
+                               <span class="icon"><iaaj class="fas">&#xf011;</i></span>
+                              <span class="text">خروج
+                               </span></a>
+                          </a>
+                        </li>
+                    {% else %}    
+                        <li>
+                            <a href="{% url 'login' %}" class="hide">
+                                <span class="icon"><i class="fas">&#xf2f6;</i></span>
+                                <span class="text">ورود به حساب کاربری
+                                </span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                </div>
+            </div>
+            <div class="sabad-container">
+                <div class="sabad">
+                    <h2>سبد خرید شما</h2>
+                    {% if cart_items %}
+                    <ul>
+                    {% for item in cart_items %}
+                    <li>
+                        <img src="{{ item.product_id.image.url }}" alt="{{ item.product_id.name }}">
+                        {{ item.product_id.name }} --- {{ item.product_id.price }} تومان
+                        <div>
+                            <form method="POST" action="{% url 'remove_from_cart' item.product_id.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit">حذف</button>
+                            </form>
+                            <form method="POST" class="update-cart-form" action="{% url 'cart' %}" data-url="{% url 'cart' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ item.product_id.id }}">
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                                <button type="submit" name="update_quantity">بروزرسانی</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                    </ul>
+                    
+                    <form method="POST" action="{% url 'cart' %}" id="place-order-form" >
+                        {% csrf_token %}
+                        <div>
+                            <label>
+                                <input type="radio" name="purchase_type" value="TA" checked>
+                                بیرون بر
+                            </label>
+                            <label>
+                                <input type="radio" name="purchase_type" value="IS">
+                                حضوری
+                            </label>
+                        </div>
+                        <button type="submit" name="place_order">ثبت سفارش</button>
+                    </form>
+                    {% else %}
+                        <p class="empty-cart">هیچ محصولی به سبد خرید اضافه نشده</p>
+                    {% endif %}
+
+                    <div id="toast" class="toast"></div>
+                </div>    
+            </div>
+            <div style="height: 300px;"></div>
+            <footer class="footer" style="background-color: #332819; border-right: #282014 solid 2px;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>درباره ما</h5>
+                            <p>بهترین نوشیدنی ها و کیک های خود را از ما بخواهید</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>لینک‌ها</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="{% url 'index' %}"><i class="fas fa-home"></i> صفحه اصلی</a></li>
+                                <li><a href="{% url 'products' %}"><i class="fas">&#xf291;</i> محصولات</a></li>
+                                <li><a href="{% url 'order_history' %}"><i class="fas">&#xf15c;</i> سوابق خرید</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>اطلاعات تماس</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-envelope"></i> ایمیل: CafeBizGate@gmail.com</li>
+                                <li><i class="fas fa-phone"></i> تلفن: 09123456789</li>
+                                <li><i class="fas fa-map-marker-alt"></i> آدرس: تهران، خیابان آزادی، دانشگاه شریف، دانشکده صنایع، vending machine طبقه همکف</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p>&copy; 2024 تمامی حقوق محفوظ است.</p>
+                        <div>
+                            <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+                            <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
+                            <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
+                            <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+    </div>
+
+    <script>
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message alert ${type === 'error' ? 'alert-danger' : 'alert-success'}`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                messageDiv.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 500);
+            }, 5000);
+        }
+        
+        document.querySelectorAll('.update-cart-form').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+        
+                const url = this.getAttribute('data-url');
+                const formData = new FormData(this);
+                formData.append('update_quantity', 'true'); // اضافه کردن update_quantity به فرم‌داده‌ها
+        
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.headers.get('content-type')?.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => { throw new Error(`Invalid JSON: ${text}`); });
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.success, 'success');
+                    } else {
+                        showMessage(data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('An error occurred', 'error');
+                });
+            });
+        });
+
+        document.getElementById('place-order-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+        
+            const url = this.action;
+            const formData = new FormData(this);
+            formData.append('place_order', 'true'); // اضافه کردن place_order به فرم‌داده‌ها
+        
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(`Invalid JSON: ${text}`); });
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.success, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/order_history/';
+                    }, 2000);
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred', 'error');
+            });
+        });
+        
+    </script>
+    <script>
+        var li_items = document.querySelectorAll(".sidebar ul li");
+        var hamburger = document.querySelector(".hamburger");
+        var wrapper = document.querySelector(".wrapper");
+        var footer=document.querySelector(".footer");
+        var sabad=document.querySelector(".sabad-container");
+    
+        li_items.forEach((li_item)=>{
+            li_item.addEventListener("mouseenter", ()=>{
+                
+                if(wrapper.classList.contains("click_collapse")){
+                    return;
+                }
+                else{
+                    li_item.closest(".wrapper").classList.remove("hover_collapse");
+                }
+            })
+        })
+    
+        li_items.forEach((li_item)=>{
+            li_item.addEventListener("mouseleave", ()=>{
+                
+                if(wrapper.classList.contains("click_collapse")){
+                    return;
+                }
+                else{
+                    li_item.closest(".wrapper").classList.add("hover_collapse");
+                }
+            })
+        })
+    
+        hamburger.addEventListener("click", () => {
+            hamburger.closest(".wrapper").classList.toggle("click_collapse");
+            hamburger.closest(".wrapper").classList.toggle("hover_collapse");
+        })
+    
+        </script>
+        <script src="{% static 'scripts/jquery-3.3.1.slim.min.js'%}"></script>
+        <script src="{% static 'scripts/popper.min.js'%}"></script>
+        <script src="{% static 'scripts/bootstrap.min.js'%}"></script>
+</body>
+</html>

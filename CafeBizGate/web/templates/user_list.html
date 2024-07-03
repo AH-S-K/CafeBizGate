@@ -1,8 +1,37 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>User List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.fa.min.css'%}">
+    <link rel="stylesheet" href="{% static 'css/main.css'%}">
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <style>
+        *{
+            text-align: center;
+            color: #c3ac00;
+        }
+        .btn-color{
+            margin-top: 30px;
+            color: #c3ac00;
+            background-color: #332819;
+        }
+        
+        .btn-color:hover{
+            color: #cb1010;
+            background-color: #4e3a2b;
+        }
+        p,h1,li{
+            background-color: #5a4220;
+            border: 4px solid #332819;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 15px;
+        }
+    </style>
 </head>
 <body>
     <h1>User List</h1>
@@ -13,10 +42,11 @@
                 <form method="POST" action="{% url 'delete-user' %}">
                     {% csrf_token %}
                     <input type="hidden" name="username" value="{{ user.username }}">
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="btn-color">Delete</button>
                 </form>
             </li>
         {% endfor %}
     </ul>
+    <a href="{% url 'management' %}" class="nav-link" style="margin-top: 30px;"><i class="fas">&#xf011;</i> بازگشت</a>
 </body>
 </html>

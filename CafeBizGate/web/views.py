@@ -3,20 +3,31 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Product, Users, Orders, Orders_Product, Storage, Admins
 from .forms import *
-from django.http import HttpResponse
+from django.http import HttpResponse , HttpResponseRedirect
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy , reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.translation import gettext_lazy as _
 from django.http import JsonResponse
+from django.db import transaction
+from django.db.models import Sum , Count ,F
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models.functions import TruncDay , TruncMonth , TruncWeek
 
 
 def index(request):
-    best_selling_products = Product.objects.all()[:12]
-    return render(request, 'index.html', {'best_selling_products': best_selling_products})
+    best_selling_products = Product.objects.annotate(
+        total_sales=Sum('orders_product__quantity' , filter=models.Q(orders_product__orders_order_id__type=True))
+    ).exclude(name='Test Product').order_by('-total_sales')[:12]
 
+    context = {
+        'best_selling_products': best_selling_products,
+    }
+
+    return render(request, 'index.html', context)
 
 def signup_view(request):
     if request.method == 'POST':
@@ -35,11 +46,15 @@ def login_view(request):
         if form.is_valid():
             username_or_email = form.cleaned_data['username_or_email']
             password = form.cleaned_data['password']
-            if username_or_email=="admin" and password=='admin':
-                user = authenticate(request, username=username_or_email , password=password)
-                login(request, user)
-                return redirect('management')
-            if "@" not in username_or_email:
+            if username_or_email=="admin":
+                try :
+                    user = authenticate(request, username=username_or_email , password=password)
+                    login(request, user)
+                    return redirect('management')
+                except Exception:
+                    form.add_error(None, 'نام کاربری یا رمز عبور اشتباه است')
+                    
+            elif "@" not in username_or_email:
                 user = authenticate(request, username=username_or_email, password=password)
                 if user is not None:
                     login(request, user)
@@ -57,6 +72,7 @@ def login_view(request):
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
+
 
 
 @login_required
@@ -81,21 +97,13 @@ def delete_user(request):
         username = request.POST.get('username')
         try:
             user = User.objects.get(username=username)
-            print(username)
             user.delete()
             return redirect('user-list')
         except User.DoesNotExist:
             pass
     return redirect('user-list')
 
-@user_passes_test(is_admin, login_url='/unauthorized/')
-def delete_user2(request):
-    try:
-        user = User.objects.get(username='a2')
-        user.delete()
-        return redirect("login")
-    except Users.DoesNotExist:
-        return HttpResponse('User not found')
+
 
 @user_passes_test(is_admin, login_url='/unauthorized/')
 def management_view(request):
@@ -175,3 +183,318 @@ def add_product(request):
         'products': products,
         'product': product,
     })
+
+def sales_data(request):
+    product_id = request.GET.get('product_id')
+    period = request.GET.get('period')  # 'daily', 'weekly', 'monthly'
+
+    end_date = timezone.now()
+
+    if period == 'daily':
+        start_date = end_date - timedelta(days=30)
+        Trunc_function = TruncDay
+    elif period == 'weekly':
+        start_date = end_date - timedelta(weeks=12)  # حدودا 3 ماه
+        Trunc_function = TruncWeek
+    elif period == 'monthly':
+        start_date = end_date - timedelta(days=365)
+        Trunc_function = TruncMonth
+    else:
+        return JsonResponse({'error': 'Invalid period'}, status=400)
+    
+    
+    sales_data = Orders_Product.objects.filter(
+        orders_order_id__order_date__range=[start_date, end_date],
+        product_id=product_id
+    ).annotate(
+        period=Trunc_function('orders_order_id__order_date')
+    ).values(
+        'period'
+    ).annotate(
+        total_quantity=Sum('quantity')
+    ).order_by('period')
+    
+    
+    sales_data_list = list(sales_data)
+    
+    return JsonResponse(sales_data_list, safe=False)
+
+def product_list(request):
+    category = request.GET.get('category')
+    if category:
+        products = Product.objects.filter(category=category).exclude(name='Test Product')
+    else:
+        products = Product.objects.all().exclude(name='Test Product')
+        
+    data = [
+        {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'category':product.category,
+            'image': product.image.url,
+        }
+        for product in products
+    ]
+    return JsonResponse(data, safe=False)
+
+def product_list2(request):
+    category = request.GET.get('category')
+    if category:
+        products = Product.objects.filter(category=category)
+    else:
+        products = Product.objects.all()
+        
+    data = [
+        {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price,
+            'category':product.category,
+            'image': product.image.url,
+        }
+        for product in products
+    ]
+    return JsonResponse(data, safe=False)
+
+
+def display_products(request, category=None):
+    context = {'category': category}
+    return render(request, 'products.html', context)
+
+@login_required(login_url='login')
+@transaction.atomic
+def add_to_cart(request, product_id):
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=product_id)
+        
+        # اضافه کردن محصول به سبد خرید
+        user_order, created = Orders.objects.get_or_create(username=request.user.custom_user, type=False , defaults={'order_date': timezone.now() , 'purchase_type': 'TA'})
+        
+        # محاسبه مقدار مورد نیاز هر ماده اولیه برای محصول جدید
+        required_ingredients = {}
+        for ingredient in product.ingredients.all():
+            if ingredient.storage.id not in required_ingredients:
+                required_ingredients[ingredient.storage.id] = 0
+            required_ingredients[ingredient.storage.id] += ingredient.quantity
+        
+        # محاسبه مقدار مورد نیاز برای محصولات فعلی در سبد خرید
+        for order_item in user_order.orders_product_set.all():
+            for ingredient in order_item.product_id.ingredients.all():
+                if ingredient.storage.id not in required_ingredients:
+                    required_ingredients[ingredient.storage.id] = 0
+                required_ingredients[ingredient.storage.id] += order_item.quantity * ingredient.quantity
+        
+        # بررسی موجودی انبار
+        insufficient_ingredients = []
+        for storage_id, required_amount in required_ingredients.items():
+            storage = Storage.objects.select_for_update().get(id=storage_id)
+            if storage.amount < required_amount:
+                insufficient_ingredients.append(storage.name)
+        
+        if insufficient_ingredients:
+            return JsonResponse({'error': 'موجودی کافی نیست!'}, status=400)
+        
+        # در صورتی که موجودی کافی باشد، محصول به سبد خرید اضافه می‌شود
+        order_product, created = Orders_Product.objects.get_or_create(orders_order_id=user_order, product_id=product)
+        
+        if not created:
+            order_product.quantity += 1
+        order_product.save()
+        
+        # به روزرسانی purchase_amount
+        user_order.purchase_amount += product.price
+        user_order.save()
+        
+        return JsonResponse({'success': 'محصول با موفقیت به سبد خرید اضافه شد!'})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@login_required(login_url='login')
+@transaction.atomic
+def cart(request):
+    user_orders = Orders.objects.filter(username=request.user.custom_user, type=False)
+    user_order = user_orders[0] if user_orders.exists() else None
+
+    if request.method == 'POST':
+        if 'update_quantity' in request.POST:
+            product_id = request.POST.get('product_id')
+            new_quantity = int(request.POST.get('quantity'))
+            order_product = Orders_Product.objects.get(orders_order_id=user_order, product_id=product_id)
+            
+            required_ingredients = {}
+            for ingredient in order_product.product_id.ingredients.all():
+                if ingredient.storage.id not in required_ingredients:
+                    required_ingredients[ingredient.storage.id] = 0
+                required_ingredients[ingredient.storage.id] += (new_quantity - order_product.quantity) * ingredient.quantity
+                
+            # محاسبه مقدار مورد نیاز برای محصولات فعلی در سبد خرید
+            for order_item in user_order.orders_product_set.all():
+                for ingredient in order_item.product_id.ingredients.all():
+                    if ingredient.storage.id not in required_ingredients:
+                        required_ingredients[ingredient.storage.id] = 0
+                    required_ingredients[ingredient.storage.id] += order_item.quantity * ingredient.quantity
+            
+            insufficient_ingredients = []
+            for storage_id, required_amount in required_ingredients.items():
+                storage = Storage.objects.get(id=storage_id)
+                if storage.amount < required_amount:
+                    insufficient_ingredients.append(storage.name)
+
+            if insufficient_ingredients:
+                return JsonResponse({'error': 'موجودی کافی نیست!'}, status=400)
+
+            user_order.purchase_amount += (new_quantity - order_product.quantity) * order_product.product_id.price
+            order_product.quantity = new_quantity
+            order_product.save()
+            user_order.save()
+            return JsonResponse({'success': "تعداد محصول با موفقیت بروزرسانی شد!"})
+
+        elif 'place_order' in request.POST:
+            order_type = request.POST.get('order_type') == 'on'
+            purchase_type = request.POST.get('purchase_type')  # دریافت نوع خرید
+
+            if not user_order:
+                return JsonResponse({'error': 'سبد خرید فعال یافت نشد.'}, status=400)
+
+            required_ingredients = {}
+            for order_product in user_order.orders_product_set.all():
+                product = order_product.product_id
+                for ingredient in product.ingredients.all():
+                    if ingredient.storage.id not in required_ingredients:
+                        required_ingredients[ingredient.storage.id] = 0
+                    required_ingredients[ingredient.storage.id] += order_product.quantity * ingredient.quantity
+
+            insufficient_ingredients = []
+            for storage_id, required_amount in required_ingredients.items():
+                storage = Storage.objects.get(id=storage_id)
+                if storage.amount < required_amount:
+                    insufficient_ingredients.append(storage.name)
+
+            if insufficient_ingredients:
+                return JsonResponse({'error': 'موجودی کافی نیست!'}, status=400)
+
+            for storage_id, required_amount in required_ingredients.items():
+                storage = Storage.objects.get(id=storage_id)
+                storage.amount -= required_amount
+                storage.save()
+
+            total_amount = sum(item.product_id.price * item.quantity for item in user_order.orders_product_set.all())
+            user_order.purchase_amount = total_amount
+            user_order.type = True
+            user_order.order_date = timezone.now()
+            user_order.purchase_type = purchase_type  # ذخیره نوع خرید
+            user_order.save()
+
+            return JsonResponse({'success': 'سفارش شما با موفقیت ثبت شد!'}, status=200)
+        # Handle case where neither update_quantity nor place_order is in POST
+        return JsonResponse({'error': 'درخواست نامعتبر.'}, status=400)
+    
+    # GET request handling 
+    context = {
+        'cart_items': user_order.orders_product_set.all() if user_order else [],
+    }
+    return render(request, 'cart.html', context)
+
+@login_required(login_url='login')
+@transaction.atomic
+def remove_from_cart(request, product_id):
+    if request.method == 'POST':
+        user_order = Orders.objects.get(username=request.user.custom_user, type=False)
+        order_product = get_object_or_404(Orders_Product, orders_order_id=user_order, product_id=product_id)
+
+        # به روزرسانی purchase_amount
+        user_order.purchase_amount -= order_product.product_id.price * order_product.quantity
+
+        order_product.delete()
+        # اگر هیچ محصولی در سبد خرید باقی نماند، سفارش را نیز حذف کن
+        if user_order.orders_product_set.count() == 0:
+            user_order.delete()
+        else:
+            user_order.save()
+
+        return redirect('cart')
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@login_required(login_url='login')
+def order_history(request):
+    completed_orders = Orders.objects.filter(username=request.user.custom_user, type=True)
+    orders_info = []
+    for order in completed_orders:
+        order_products = order.orders_product_set.all()
+        products_info = []
+        for order_product in order_products:
+            product = order_product.product_id
+            total_price = product.price * order_product.quantity
+            products_info.append({
+                'product_name': product.name,
+                'product_image': product.image.url,
+                'product_price': product.price,
+                'quantity': order_product.quantity,
+                'total_price': total_price,
+            })
+        orders_info.append({
+            'order_id': order.order_id,
+            'purchase_amount': order.purchase_amount,
+            'purchase_type': order.purchase_type,
+            'products_info': products_info,
+        })
+    context = {
+        'orders_info': orders_info,
+    }
+    return render(request, 'order_history.html', context)
+
+
+@login_required(login_url='login')
+def clear_cart(request):
+    # دریافت همه‌ی سفارشات کاربر
+    user_orders = Orders.objects.filter(username=request.user.custom_user, type=False)
+    
+    # حذف همه‌ی سفارشات
+    user_orders.delete()
+    
+    # پیام موفقیت‌آمیز برای کاربر
+    messages.success(request, 'Your cart has been cleared successfully!')
+    
+    # ریدایرکت به صفحه‌ای دیگر، به عنوان مثال به صفحه‌ی اصلی یا همان صفحه‌ی سبد خرید
+    return redirect('cart')
+
+
+def clear_purchase_history(request):
+    if request.method == 'POST':
+        Orders_Product.objects.all().delete()
+        Users_Orders.objects.all().delete()
+        Orders.objects.all().delete()
+        messages.success(request, 'Purchase history has been cleared.')
+        return redirect('clear_purchase_history')
+    return render(request, 'clear_purchase_history.html')
+
+
+# import random
+# from django.utils import timezone
+# from datetime import timedelta
+# from django.contrib.auth.models import User
+# from web.models import Users, Product, Orders, Orders_Product  # به جای `web` نام اپلیکیشن خود را وارد کنید
+# # بررسی وجود کاربر تستی و ایجاد در صورت عدم وجود
+# user, created = User.objects.get_or_create(
+#     username='testuser',
+#     defaults={'password': 'testpassword'}
+# )
+# custom_user, created = Users.objects.get_or_create(
+#     user=user,
+#     defaults={'full_name': 'Test User', 'phone_number': '09111111111'}
+# )
+# # بررسی وجود محصول تستی و ایجاد در صورت عدم وجود
+# product, created = Product.objects.get_or_create(
+#     name='Test Product',
+#     defaults={'price': 1000, 'category': Product.CAKE, 'image': 'images/test_product.jpg'}
+# )
+# # افزودن سفارشات تستی برای بازه‌های زمانی مختلف
+# for i in range(1, 31):  # 30 روز
+#     order_date = timezone.now() - timedelta(days=i)
+#     # تعداد تصادفی خریدها بین 0 و 5
+#     num_orders = random.randint(0, 5)
+#     for _ in range(num_orders):
+#         order = Orders.objects.create(username=custom_user, purchase_amount=1000, type=True, order_date=order_date)
+#         Orders_Product.objects.create(orders_order_id=order, product_id=product, quantity=random.randint(1, 10))
