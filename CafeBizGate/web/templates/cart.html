@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Cart</title>
+    <title>سبد خرید</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/bootstrap.fa.min.css'%}">
     <link rel="stylesheet" href="{% static 'css/main.css'%}">
@@ -174,7 +174,7 @@
                 </li>      
             </ul>
             <div class="navbar-nav mr-auto cafe">
-                <a href="{% url 'index' %}" class="nav-link">CAFE</a>
+                <a href="{% url 'index' %}" class="nav-link">CAFE SHARIF</a>
               </div>
             <div class="navbar-nav nav-item mr-auto blocking">
                 {% if user.is_authenticated %}
@@ -184,65 +184,65 @@
                 {% endif %}
             </div>    
         </nav>
-            <div class="sidebar">
-                <div class="sidebar_inner">
-                <ul>
+        <div class="sidebar">
+            <div class="sidebar_inner">
+            <ul>
+                <li>
+                    <a href='{% url "products_with_category" "HD" %}'>
+                        <span class="icon"><i class="fas"> &#xf7b6;</i></span>
+                        <span class="text">نوشیدنی گرم</span>
+                    </a>
+                </li>
+                <li>
+                    <a href='{% url "products_with_category" "CD" %}'>
+                        <span class="icon"><i class="fas"> &#xf5ce; </i></span>
+                        <span class="text">نوشیدنی سرد</span>
+                    </a>
+                </li>
+                <li>
+                    <a href='{% url "products_with_category" "TI" %}'>
+                        <span class="icon"><i class="fas"> &#xf0fc;</i></span>
+                        <span class="text">چای و دمنوش</span>
+                    </a>
+                </li>
+                <li>
+                    <a href='{% url "products_with_category" "CK" %}'>
+                        <span class="icon"><i class="fas"> &#xf7ef;</i></span>
+                        <span class="text">کیک ها</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hide">
+                        <span class="icon"><i class="fas">	&#xf07a;</i></span>
+                        <span class="text">سبد خرید</span></a>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hide">
+                        <span class="icon"><i class="fas"> &#xf15c;</i></span>
+                        <span class="text">سوابق خرید</span></a>
+                    </a>
+                </li>	
+                {% if user.is_authenticated %}    
+                    <li class="leave">
+                      <a href="{% url 'logout' %}" class="hide">
+                           <span class="icon"><i class="fas">&#xf011;</i></span>
+                          <span class="text">خروج
+                           </span></a>
+                      </a>
+                    </li>
+                {% else %}    
                     <li>
-                        <a href='products/HD/'>
-                            <span class="icon"><i class="fas"> &#xf7b6;</i></span>
-                            <span class="text">نوشیدنی گرم</span>
+                        <a href="{% url 'login' %}" class="hide">
+                            <span class="icon"><i class="fas">&#xf2f6;</i></span>
+                            <span class="text">ورود به حساب کاربری
+                            </span>
                         </a>
                     </li>
-                    <li>
-                        <a href='products/CD/'>
-                            <span class="icon"><i class="fas"> &#xf5ce; </i></span>
-                            <span class="text">نوشیدنی سرد</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href='products/TI/'>
-                            <span class="icon"><i class="fas"> &#xf0fc;</i></span>
-                            <span class="text">چای و دمنوش</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href='products/CK/'>
-                            <span class="icon"><i class="fas"> &#xf7ef;</i></span>
-                            <span class="text">کیک ها</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'cart' %}" class="hide">
-                            <span class="icon"><i class="fas">	&#xf07a;</i></span>
-                            <span class="text">سبد خرید</span></a>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'order_history' %}" class="hide">
-                            <span class="icon"><i class="fas"> &#xf15c;</i></span>
-                            <span class="text">سوابق خرید</span></a>
-                        </a>
-                    </li>	
-                    {% if user.is_authenticated %}    
-                        <li class="leave">
-                          <a href="{% url 'logout' %}" class="hide">
-                               <span class="icon"><iaaj class="fas">&#xf011;</i></span>
-                              <span class="text">خروج
-                               </span></a>
-                          </a>
-                        </li>
-                    {% else %}    
-                        <li>
-                            <a href="{% url 'login' %}" class="hide">
-                                <span class="icon"><i class="fas">&#xf2f6;</i></span>
-                                <span class="text">ورود به حساب کاربری
-                                </span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-                </div>
+                {% endif %}
+            </ul>
             </div>
+        </div>
             <div class="sabad-container">
                 <div class="sabad">
                     <h2>سبد خرید شما</h2>
@@ -317,19 +317,7 @@
     </div>
 
     <script>
-        // function showMessage(message, type) {
-        //     const toast = document.getElementById('toast');
-        //     toast.textContent = message;
-        //     toast.className = 'toast show';
-        //     if (type === 'error') {
-        //         toast.style.backgroundColor = '#d9534f';
-        //     } else {
-        //         toast.style.backgroundColor = '#5cb85c';
-        //     }
-        //     setTimeout(() => {
-        //         toast.className = 'toast';
-        //     }, 3000);
-        // }
+    
         function showMessage(message, type) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
