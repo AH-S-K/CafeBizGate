@@ -212,13 +212,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="hide">
+                    <a href="{% url 'cart' %}" class="hide">
                         <span class="icon"><i class="fas">	&#xf07a;</i></span>
                         <span class="text">سبد خرید</span></a>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="hide">
+                    <a href="{% url 'order_history' %}" class="hide">
                         <span class="icon"><i class="fas"> &#xf15c;</i></span>
                         <span class="text">سوابق خرید</span></a>
                     </a>
@@ -316,37 +316,48 @@
             </footer>
     </div>
 
-    <script>
-    
-        function showMessage(message, type) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show';
-            if (type === 'error') {
-                toast.style.backgroundColor = '#d9534f';
-            } else {
-                toast.style.backgroundColor = '#5cb85c';
-            }
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
-        }
+     <script>
 
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message alert ${type === 'error' ? 'alert-danger' : 'alert-success'}`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                messageDiv.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 500);
+            }, 5000);
+        }
+        
         document.querySelectorAll('.update-cart-form').forEach(form => {
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
-
+        
                 const url = this.getAttribute('data-url');
                 const formData = new FormData(this);
-
+                formData.append('update_quantity', 'true'); // اضافه کردن update_quantity به فرم‌داده‌ها
+        
                 fetch(url, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: formData,
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.headers.get('content-type')?.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => { throw new Error(`Invalid JSON: ${text}`); });
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         showMessage(data.success, 'success');
@@ -361,6 +372,44 @@
             });
         });
 
+        document.getElementById('place-order-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+        
+            const url = this.action;
+            const formData = new FormData(this);
+            formData.append('place_order', 'true'); // اضافه کردن place_order به فرم‌داده‌ها
+        
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(`Invalid JSON: ${text}`); });
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.success, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/order_history/';
+                    }, 2000);
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred', 'error');
+            });
+        });
         
     </script>
     <script>
