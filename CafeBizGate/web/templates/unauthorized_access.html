@@ -1,0 +1,45 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unauthorized Access</title>
+    <style>
+        body {
+            background-color: #ded9ad;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+        }
+        p {
+            font-size: 1.5rem;
+            color: #333;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'index' %}"><img src="{%static 'pic/978967dedf922546a374dd2d9e07ed35.png'%}" alt="Unauthorized Access"></a>
+        <p>YOU ARE NOT ADMIN BRO!</p>
+    </div>
+</body>
+</html>

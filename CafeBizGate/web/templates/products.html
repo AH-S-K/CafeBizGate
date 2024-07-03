@@ -1,0 +1,461 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.fa.min.css'%}">
+    <link rel="stylesheet" href="{% static 'css/main.css'%}">
+    <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <title>Product Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .product-container {
+            margin-top: 100px;
+            margin-right: 250px;
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .product {
+            border: 4px solid #332819;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #5a4220;
+            width: calc(25% - 20px); 
+            box-sizing: border-box; 
+        }
+        .product img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid #332819;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .product h2 {
+            color: #c3ac00;
+            font-size: 30px;
+            margin-top: 10px;
+            border-bottom: #332819 4px solid;
+        }
+
+        .product p {
+            font-size: 18px;
+            color: #c3ac00;
+            margin-bottom: 15px;
+            border-bottom: #332819 4px solid;
+        }
+
+        .quantity {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-color{
+            width: 70px;
+            color: #c3ac00;
+            background-color: #332819;
+        }
+        
+        .btn-color:hover{
+            color: #cb1010;
+            background-color: #332819;
+        }
+
+        .message {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+
+        @media(max-width:956px){
+            .product h2 {
+            font-size: 24px;
+        }
+
+        .product p {
+            font-size: 12.5px;
+   
+        }
+        }
+        @media(max-width:803px){
+            .product h2 {
+            font-size: 18px;
+        }
+
+        .product p {
+            font-size: 9.5px;
+        }
+        .btn-color{
+            font-size: 12px;
+            width: 60px;
+        }
+        }
+        @media(max-width:681px){
+            .product h2 {
+            font-size: 14px;
+        }
+
+        .product p {
+            font-size: 6px;
+            margin-bottom: 5px;
+   
+        }
+        .btn-color{
+            font-size: 10px;
+            width: 50px;
+        }
+    }
+    @media(max-width:586px){
+            .product h2 {
+            font-size: 8px;
+        }
+
+        .product p {
+            font-size: 4px;
+   
+        }
+        .btn-color{
+            font-size: 10px;
+            width: 50px;
+        }
+    }
+    @media(max-width:486px){
+            .product h2 {
+            font-size: 6px;
+        }
+
+        .product p {
+            font-size: 5px;
+   
+        }
+        .btn-color{
+            font-size: 7px;
+            width: 30px;
+        }
+    }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper hover_collapse">
+        <nav class="navbar navbar-expand shadow fixed-top">
+            <div class="nav-item" style="margin-right: 15px;">
+                <a class="hamburger"><i class="fas fa-bars"></i></a>
+            </div>
+            <ul class="navbar-nav blocking" style="margin-right: 25px;">
+                </li>
+                <li class="nav-item mx-2">
+                    <a href="{% url 'order_history' %}" class="nav-link"><i class="fas">	&#xf15c;</i> سوابق خرید</a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a href="{% url 'cart' %}" class="nav-link"><i class="fas">	&#xf07a;</i> سبد خرید</a>
+                </li>      
+            </ul>
+            <div class="navbar-nav mr-auto cafe">
+                <a href="{% url 'index' %}" class="nav-link">CAFE</a>
+              </div>
+            <div class="navbar-nav nav-item mr-auto blocking">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="nav-link"><i class="fas">&#xf011;</i> خروج</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link"><i class="fas">&#xf2f6;</i> ورود به حساب کاربری</a>
+                {% endif %}
+            </div>    
+        </nav>
+        <div class="sidebar">
+            <div class="sidebar_inner">
+            <ul>
+                <li>
+                    <a href="#" id="hot">
+                        <span class="icon"><i class="fas"> &#xf7b6;</i></span>
+                        <span class="text">نوشیدنی گرم</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="cold">
+                        <span class="icon"><i class="fas"> &#xf5ce; </i></span>
+                        <span class="text">نوشیدنی سرد</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="tea">
+                        <span class="icon"><i class="fas"> &#xf0fc;</i></span>
+                        <span class="text">چای و دمنوش</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="cakes">
+                        <span class="icon"><i class="fas"> &#xf7ef;</i></span>
+                        <span class="text">کیک ها</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hide">
+                        <span class="icon"><i class="fas">	&#xf07a;</i></span>
+                        <span class="text">سبد خرید</span></a>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hide">
+                        <span class="icon"><i class="fas"> &#xf15c;</i></span>
+                        <span class="text">سوابق خرید</span></a>
+                    </a>
+                </li>	
+                {% if user.is_authenticated %}    
+                    <li class="leave">
+                        <a href="{% url 'login' %}" class="hide">
+                            <span class="icon"><i class="fas">&#xf011;</i></span>
+                            <span class="text">خروج
+                            </span></a>
+                        </a>
+                    </li>
+                {% else %}    
+                    <li>
+                        <a href="{% url 'login' %}" class="hide">
+                            <span class="icon"><i class="fas">&#xf2f6;</i></span>
+                            <span class="text">ورود به حساب کاربری
+                            </span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            </div>
+        </div>
+        <div class="product-container" id="product-container">
+        </div>
+        {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div style="height: 300px;"></div>
+        <footer class="footer" style="background-color: #332819; border-right: #282014 solid 2px;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>درباره ما</h5>
+                        <p>بهترین نوشیدنی ها و کیک های خود را از ما بخواهید</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>لینک‌ها</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="{% url 'index' %}"><i class="fas fa-home"></i> صفحه اصلی</a></li>
+                            <li><a href="{% url 'products' %}"><i class="fas">&#xf291;</i> محصولات</a></li>
+                            <li><a href="{% url 'order_history' %}"><i class="fas">&#xf15c;</i> سوابق خرید</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>اطلاعات تماس</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-envelope"></i> ایمیل: CafeBizGate@gmail.com</li>
+                            <li><i class="fas fa-phone"></i> تلفن: 09123456789</li>
+                            <li><i class="fas fa-map-marker-alt"></i> آدرس: تهران، خیابان آزادی، دانشگاه شریف، دانشکده صنایع، vending machine طبقه همکف</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p>&copy; 2024 تمامی حقوق محفوظ است.</p>
+                    <div>
+                        <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-linkedin fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const initialCategory = '{{ category }}';
+    if (initialCategory !== 'None') {
+        fetchProductsByCategory(initialCategory);
+    } else {
+        fetch('/api/products/')
+        .then(response => response.json())
+        .then(products => {
+            displayProducts(products);
+        });
+    }
+
+    document.getElementById('hot').addEventListener('click', function(event) {
+        event.preventDefault();
+        fetchProductsByCategory('HD');
+    });
+
+    document.getElementById('cold').addEventListener('click', function(event) {
+        event.preventDefault();
+        fetchProductsByCategory('CD');
+    });
+
+    document.getElementById('cakes').addEventListener('click', function(event) {
+        event.preventDefault();
+        fetchProductsByCategory('CK');
+    });
+
+    document.getElementById('tea').addEventListener('click', function(event) {
+        event.preventDefault();
+        fetchProductsByCategory('TI');
+    });
+});
+
+function displayProducts(products) {
+    const container = document.getElementById('product-container');
+    container.innerHTML = '';
+    products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'product';
+        productDiv.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h2>${product.name}</h2>
+            <p>قیمت: ${product.price} تومان </p>
+            <button class="btn-color" onclick="addToCart(${product.id})">افزودن</button>
+        `;
+        container.appendChild(productDiv);
+    });
+}
+
+function fetchProductsByCategory(category) {
+    let url = '/api/products/';
+    if (category) {
+        url += `?category=${category}`;
+    }
+    fetch(url)
+    .then(response => response.json())
+    .then(products => {
+        displayProducts(products);
+    });
+}
+
+
+function addToCart(productId) {
+            fetch(`/add_to_cart/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    showMessage(data.success, 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message alert ${type === 'error' ? 'alert-danger' : 'alert-success'}`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                messageDiv.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 500);
+            }, 5000);
+        }
+
+    var li_items = document.querySelectorAll(".sidebar ul li");
+    var hamburger = document.querySelector(".hamburger");
+    var wrapper = document.querySelector(".wrapper");
+    var footer=document.querySelector(".footer");
+    var product=document.querySelector(".product-container");
+
+    li_items.forEach((li_item)=>{
+        li_item.addEventListener("mouseenter", ()=>{
+            
+            if(wrapper.classList.contains("click_collapse")){
+                return;
+            }
+            else{
+                li_item.closest(".wrapper").classList.remove("hover_collapse");
+            }
+        })
+    })
+
+    li_items.forEach((li_item)=>{
+        li_item.addEventListener("mouseleave", ()=>{
+            
+            if(wrapper.classList.contains("click_collapse")){
+                return;
+            }
+            else{
+                li_item.closest(".wrapper").classList.add("hover_collapse");
+            }
+        })
+    })
+
+    hamburger.addEventListener("click", () => {
+        hamburger.closest(".wrapper").classList.toggle("click_collapse");
+        hamburger.closest(".wrapper").classList.toggle("hover_collapse");
+    })
+
+    </script>
+    <script src="{% static 'scripts/jquery-3.3.1.slim.min.js'%}"></script>
+    <script src="{% static 'scripts/popper.min.js'%}"></script>
+    <script src="{% static 'scripts/bootstrap.min.js'%}"></script>
+</body>
+</body>
+</html> 

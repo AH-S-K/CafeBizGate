@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://kit.fontawesome.com/b99e675b6e.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>صفحه مدیریت فروشگاه</title>
     <style>
         body {
@@ -59,6 +60,15 @@
             text-align: center;
             margin-bottom: 20px;
         }
+        .btn-color{
+            color: #c3ac00;
+            background-color: #332819;
+        }
+        
+        .btn-color:hover{
+            color: #cb1010;
+            background-color: #4e3a2b;
+        }
         @media (max-width: 768px) {
             body {
                 padding-right: 0;
@@ -83,8 +93,10 @@
             <ul>
                 <li><a href="{% url 'manage_inventory' %}">مدیریت انبار</a></li>
                 <li><a href="{% url 'add_product' %}">اضافه کردن محصول</a></li>
+                <li><a href="{% url 'user-list' %}">لیست کاربران</a></li>
+                <li><a href="{% url 'clear_purchase_history' %}">پاکسازی سوابق خرید</a></li>
                 <li class="leave">
-                    <a href="{% url 'logout' %}">
+                    <a href="{% url 'index' %}">
                          <span class="icon"><i class="fas">&#xf011;</i></span>
                         <span class="text">خروج
                          </span></a>
@@ -94,7 +106,106 @@
         </div>
     </div>    
 
+    <div class="container">
+        <h1 style="color: #c3ac00;">نمودار فروش</h1>
+        <div class="form-group">
+            <label for="productSelect" style="color: #c3ac00;">انتخاب محصول:</label>
+            <select id="productSelect" class="form-control" style="background-color: #b39264;">
+                <!-- محصولات به صورت داینامیک از سرور بارگذاری می‌شوند -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="periodSelect" style="color: #c3ac00;">انتخاب دوره:</label>
+            <select id="periodSelect" class="form-control" style="background-color: #b39264;">
+                <option value="daily">روزانه</option>
+                <option value="weekly">هفتگی</option>
+                <option value="monthly">ماهانه</option>
+            </select>
+        </div>
+        <button class="btn btn-color" onclick="loadSalesData()">بارگذاری داده‌های فروش</button>
+        <canvas id="salesChart" width="400" height="200" style="background-color: #b39264; margin-bottom: 40px; margin-top: 40px;"></canvas>
+    </div>
 
+    <script>
+        var chart = null; // مرجع سراسری برای نمودار
+
+        async function loadProducts() {
+            try {
+                let response = await fetch('/api/products/');
+                let products = await response.json();
+                let productSelect = document.getElementById('productSelect');
+                products.forEach(product => {
+                    let option = document.createElement('option');
+                    option.value = product.id;
+                    option.text = product.name;
+                    productSelect.add(option);
+                });
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        async function loadSalesData() {
+            try {
+                let productId = document.getElementById('productSelect').value;
+                let period = document.getElementById('periodSelect').value;
+                
+                console.log('Product ID:', productId);
+                console.log('Period:', period);
+
+                let response = await fetch(`/api/sales-data/?product_id=${productId}&period=${period}`);
+                let salesData = await response.json();
+
+                console.log('Sales Data:', salesData);
+
+                updateChart(salesData);
+            } catch (error) {
+                console.error('Error loading sales data:', error);
+            }
+        }
+
+        function updateChart(data) {
+            let ctx = document.getElementById('salesChart').getContext('2d');
+            // اگر نمودار از قبل وجود دارد، آن را نابود کن
+            if (chart) {
+                chart.destroy();
+            }
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.period),
+                    datasets: [{
+                        label: 'تعداد فروش',
+                        data: data.map(d => d.total_quantity),
+                        borderColor: '#c3ac00',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#5a4220'
+                            }
+
+                        },
+                        y: {
+                            ticks: {
+                                color: '#5a4220' 
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = async function() {
+            await loadProducts();
+            loadSalesData();
+        };
+    </script>
+    
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
